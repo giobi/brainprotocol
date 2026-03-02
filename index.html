@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Brain Protocol — Specifica per Workspace di Agenti AI</title>
+  <meta name="description" content="Una specifica aperta per strutturare i workspace degli agenti AI. Markdown-first. Leggibile dagli umani. Versionato con git.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Public+Sans:wght@400;500&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #080c14;
+      --surface: #0d1520;
+      --surface-2: #111d2e;
+      --border: #162038;
+      --text: #dde8f8;
+      --muted: #4a6080;
+      --accent: #3d9eff;
+      --accent-glow: rgba(61, 158, 255, 0.12);
+      --accent-warm: #7de8b0;
+      --max: 1000px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Public Sans', system-ui, sans-serif;
+      font-size: 1rem;
+      line-height: 1.7;
+      min-height: 100vh;
+    }
+
+    .container { max-width: var(--max); margin: 0 auto; padding: 0 2.5rem; }
+
+    .bg-mesh {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 100vh;
+      background:
+        radial-gradient(ellipse 60% 50% at 70% 20%, rgba(61, 158, 255, 0.07) 0%, transparent 60%),
+        radial-gradient(ellipse 40% 40% at 20% 80%, rgba(125, 232, 176, 0.04) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    main, header, footer { position: relative; z-index: 1; }
+
+    header { padding: 2rem 0; }
+    header .container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .logo {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+      text-decoration: none;
+      letter-spacing: -0.01em;
+    }
+    .logo-dot { color: var(--accent); }
+    .status-pill {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.72rem;
+      font-weight: 500;
+      color: var(--accent);
+      background: var(--accent-glow);
+      border: 1px solid rgba(61, 158, 255, 0.25);
+      padding: 0.25rem 0.8rem;
+      border-radius: 100px;
+      letter-spacing: 0.05em;
+    }
+
+    .hero {
+      padding: 9rem 0 7rem;
+      text-align: center;
+    }
+
+    .hero-label {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--accent);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 2.5rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .hero-label::before, .hero-label::after {
+      content: '';
+      width: 30px;
+      height: 1px;
+      background: var(--accent);
+      opacity: 0.4;
+    }
+
+    h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(2.5rem, 6vw, 4.5rem);
+      font-weight: 700;
+      line-height: 1.05;
+      letter-spacing: -0.03em;
+      margin-bottom: 2rem;
+    }
+    h1 .line-2 {
+      display: block;
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent-warm) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-sub {
+      font-size: 1.15rem;
+      color: var(--muted);
+      max-width: 560px;
+      margin: 0 auto 4rem;
+      line-height: 1.85;
+    }
+
+    .hero-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      justify-content: center;
+    }
+    .pill {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      padding: 0.4rem 1rem;
+      border-radius: 100px;
+      background: var(--surface);
+    }
+
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 0;
+    }
+
+    .section { padding: 6rem 0; }
+
+    .section-top {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: start;
+    }
+
+    .section-heading {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(1.6rem, 3.5vw, 2.5rem);
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      line-height: 1.15;
+    }
+
+    .section-body {
+      color: var(--muted);
+      line-height: 1.85;
+    }
+    .section-body p { margin-bottom: 1rem; }
+    .section-body p:last-child { margin-bottom: 0; }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1px;
+      margin-top: 4rem;
+      border: 1px solid var(--border);
+    }
+    .card {
+      padding: 2.5rem 2rem;
+      background: var(--surface);
+      position: relative;
+      overflow: hidden;
+    }
+    .card::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent) 0%, var(--accent-warm) 100%);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .card:hover::after { opacity: 1; }
+    .card-icon {
+      width: 32px;
+      height: 32px;
+      margin-bottom: 1rem;
+      display: block;
+      color: var(--accent);
+    }
+    .card-icon svg {
+      width: 100%;
+      height: 100%;
+    }
+    .card h3 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 0.6rem;
+    }
+    .card p {
+      font-size: 0.85rem;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+
+    .structure-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      margin-top: 3rem;
+    }
+
+    .dir-list {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .dir-list-header {
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: var(--muted);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+    .dir-item {
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+    .dir-item:last-child { border-bottom: none; }
+    .dir-name {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--accent);
+      white-space: nowrap;
+      min-width: 70px;
+    }
+    .dir-desc {
+      font-size: 0.82rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .fm-block {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .fm-bar {
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .fm-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+    }
+    .fm-dot-r { background: #ff5f56; }
+    .fm-dot-y { background: #ffbd2e; }
+    .fm-dot-g { background: #27c93f; }
+    .fm-code {
+      padding: 1.5rem;
+      font-family: 'Space Grotesk', monospace;
+      font-size: 0.8rem;
+      line-height: 1.9;
+    }
+    .fk { color: var(--accent); }
+    .fv { color: var(--text); }
+    .fs { color: #7acc7a; }
+    .fa { color: #7ec8e3; }
+    .fd { color: var(--muted); }
+
+    .compat-wrap {
+      margin-top: 3rem;
+      padding: 2.5rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      text-align: center;
+    }
+    .compat-label {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--muted);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+    }
+    .compat-models {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+    }
+    .model-tag {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text);
+      padding: 0.5rem 1.2rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--surface-2);
+    }
+
+    footer {
+      padding: 3rem 0;
+      border-top: 1px solid var(--border);
+    }
+    footer .container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .f-copy {
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+    .f-link {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .f-link:hover { color: var(--accent); }
+
+    @media (max-width: 768px) {
+      .section-top { grid-template-columns: 1fr; gap: 2rem; }
+      .structure-grid { grid-template-columns: 1fr; }
+      .hero { padding: 5rem 0 4rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="bg-mesh" aria-hidden="true"></div>
+
+<header>
+  <div class="container">
+    <a class="logo" href="#">Brain<span class="logo-dot">.</span>Protocol</a>
+    <span class="status-pill">Specifica aperta &bull; v0.1</span>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="container">
+      <p class="hero-label">Memoria per Agenti AI</p>
+      <h1>
+        Dai al tuo agente<br>
+        <span class="line-2">un cervello strutturato.</span>
+      </h1>
+      <p class="hero-sub">
+        Una specifica aperta per costruire workspace di agenti AI leggibili dagli umani,
+        scrivibili dalle macchine e versionati con git.
+      </p>
+      <div class="hero-pills">
+        <span class="pill">Markdown-first</span>
+        <span class="pill">Leggibile dagli umani</span>
+        <span class="pill">Versionato con git</span>
+        <span class="pill">LLM-agnostico</span>
+        <span class="pill">Nessun vendor lock-in</span>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <section class="section">
+    <div class="container">
+      <div class="section-top">
+        <h2 class="section-heading">Non è un framework.<br>È una convenzione.</h2>
+        <div class="section-body">
+          <p>
+            Brain Protocol definisce come la memoria di un agente AI debba essere organizzata su disco.
+            Niente database, niente vector store, niente formati proprietari. Solo directory e file markdown.
+          </p>
+          <p>
+            Un brain è un repository git. Tutto ciò che l'agente sa &mdash; persone, progetti, task,
+            cronologia &mdash; vive in markdown strutturato con metadati frontmatter.
+            L'agente legge al boot, scrive durante le sessioni, committa il diff.
+          </p>
+        </div>
+      </div>
+
+      <div class="cards">
+        <div class="card">
+          <span class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg></span>
+          <h3>Solo testo</h3>
+          <p>Ogni pezzo di memoria è un file markdown. Aprilo con qualsiasi editor, cercalo con grep, versionalo. Zero lock-in.</p>
+        </div>
+        <div class="card">
+          <span class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 3v3"/><path d="M12 18v3"/><path d="M3 12h3"/><path d="M18 12h3"/><path d="m5.6 5.6 2.15 2.15"/><path d="m16.25 16.25 2.15 2.15"/><path d="m5.6 18.4 2.15-2.15"/><path d="m16.25 7.75 2.15-2.15"/></svg></span>
+          <h3>Git è il database</h3>
+          <p>La memoria ha una storia. Fai diff tra due sessioni, ripristina una decisione, audita ogni modifica dell'agente.</p>
+        </div>
+        <div class="card">
+          <span class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V4a2 2 0 0 1 2-2h8.5L20 7.5V20a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-3"/><polyline points="14 2 14 8 20 8"/><path d="M2 15h10"/><path d="m9 18 3-3-3-3"/></svg></span>
+          <h3>Metadati frontmatter</h3>
+          <p>Contesto machine-readable su ogni file: tipo, tag, relazioni, timestamp.</p>
+        </div>
+        <div class="card">
+          <span class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M12 12h.01"/><path d="M17 12h.01"/><path d="M7 12h.01"/></svg></span>
+          <h3>LLM-agnostico</h3>
+          <p>Claude, Gemini, GPT, Mistral &mdash; qualsiasi modello che sa leggere una directory parla Brain Protocol.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <section class="section">
+    <div class="container">
+      <h2 class="section-heading">La struttura delle directory.</h2>
+
+      <div class="structure-grid">
+        <div class="dir-list">
+          <div class="dir-list-header">Directory</div>
+          <div class="dir-item">
+            <span class="dir-name">wiki/</span>
+            <span class="dir-desc">Entità: persone, aziende, progetti, tech, domini</span>
+          </div>
+          <div class="dir-item">
+            <span class="dir-name">diary/</span>
+            <span class="dir-desc">Log temporale &mdash; cosa è successo e quando</span>
+          </div>
+          <div class="dir-item">
+            <span class="dir-name">todo/</span>
+            <span class="dir-desc">Task aperti, tracciati in markdown strutturato</span>
+          </div>
+          <div class="dir-item">
+            <span class="dir-name">inbox/</span>
+            <span class="dir-desc">Elementi in arrivo da processare</span>
+          </div>
+          <div class="dir-item">
+            <span class="dir-name">boot/</span>
+            <span class="dir-desc">Configurazione di sistema: identità, agenti, tool, protocolli</span>
+          </div>
+          <div class="dir-item">
+            <span class="dir-name">tools/</span>
+            <span class="dir-desc">Wrapper API, script di automazione, integrazioni</span>
+          </div>
+        </div>
+
+        <div class="fm-block">
+          <div class="fm-bar">
+            <span class="fm-dot fm-dot-r"></span>
+            <span class="fm-dot fm-dot-y"></span>
+            <span class="fm-dot fm-dot-g"></span>
+          </div>
+          <div class="fm-code">
+            <div><span class="fd">---</span></div>
+            <div><span class="fk">type</span><span class="fv">: </span><span class="fs">project</span></div>
+            <div><span class="fk">tags</span><span class="fv">: </span><span class="fa">[web, laravel, client]</span></div>
+            <div><span class="fk">status</span><span class="fv">: </span><span class="fs">active</span></div>
+            <div><span class="fk">created</span><span class="fv">: </span><span class="fs">2026-01-15</span></div>
+            <div><span class="fk">updated</span><span class="fv">: </span><span class="fs">2026-03-02</span></div>
+            <div><span class="fk">relates_to</span><span class="fv">:</span></div>
+            <div>&nbsp;&nbsp;<span class="fa">- people/mario-rossi</span></div>
+            <div>&nbsp;&nbsp;<span class="fa">- companies/acme</span></div>
+            <div><span class="fd">---</span></div>
+            <div>&nbsp;</div>
+            <div><span class="fd"># Il contenuto del progetto segue...</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="compat-wrap">
+        <p class="compat-label">Funziona con ogni LLM</p>
+        <div class="compat-models">
+          <span class="model-tag">Claude</span>
+          <span class="model-tag">Gemini</span>
+          <span class="model-tag">GPT-4o</span>
+          <span class="model-tag">Mistral</span>
+          <span class="model-tag">Llama</span>
+          <span class="model-tag">+ qualsiasi modello &rarr;</span>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="container">
+    <span class="f-copy">Brain Protocol &mdash; specifica aperta</span>
+    <a class="f-link" href="https://giobi.com" target="_blank" rel="noopener">Un progetto di giobi.com</a>
+  </div>
+</footer>
+
+</body>
+</html>
